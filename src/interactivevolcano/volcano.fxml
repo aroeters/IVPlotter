@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="anchor" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="494.0" prefWidth="704.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="interactivevolcano.VolcanoController">
+   <children>
+      <Pane fx:id="graphPane" layoutX="14.0" layoutY="40.0" prefHeight="440.0" prefWidth="500.0" />
+      <MenuBar fx:id="menuBar" prefHeight="25.0" prefWidth="704.0">
+        <menus>
+          <Menu fx:id="file" mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem fx:id="intensity_option" mnemonicParsing="false" onAction="#loadResourceFile" text="Protein intensity file" />
+                  <MenuItem fx:id="group_option" mnemonicParsing="false" onAction="#loadGroupFile" text="Sample group file" />
+                  <MenuItem fx:id="peptide_sequence_option" mnemonicParsing="false" onAction="#loadSequenceFile" text="Peptide sequence file" />
+                  <MenuItem fx:id="uniqueness_option" mnemonicParsing="false" onAction="#loadUniqueness" text="Peptide uniqueness file" />
+            </items>
+          </Menu>
+            <Menu mnemonicParsing="false" text="Options">
+               <items>
+                  <MenuItem fx:id="help" mnemonicParsing="false" onAction="#activateHelp" text="Help" />
+                  <MenuItem fx:id="saveImage" mnemonicParsing="false" onAction="#saveImage" text="Save image" />
+               </items>
+            </Menu>
+        </menus>
+      </MenuBar>
+      <Button fx:id="plot_button" layoutX="615.0" layoutY="455.0" mnemonicParsing="false" onAction="#makePlot" text="Create plot" />
+      <ProgressIndicator fx:id="progress_indicator" layoutX="577.0" layoutY="455.0" prefHeight="25.0" prefWidth="38.0" />
+      <ToggleButton fx:id="toggle_button" layoutX="615.0" layoutY="421.0" mnemonicParsing="false" onAction="#toggleAction" prefHeight="25.0" prefWidth="75.0" text="ToggleButton" />
+   </children>
+   <cursor>
+      <Cursor fx:constant="DEFAULT" />
+   </cursor>
+</AnchorPane>
