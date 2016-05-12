@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +49,7 @@ import modules.AutoCompleteTextField;
 import modules.CanvasFiller;
 import modules.Listeners;
 import modules.NodeGenerator;
+import nodes.Datapoint;
 import nodes.DatapointCollection;
 import nonguitasks.ExternalScriptRunner;
 import rscripts.RScriptRequirementChecker;
@@ -86,11 +88,15 @@ public class VolcanoController implements Initializable {
     ToggleButton toggle_button;
     @FXML
     private MenuItem help;
-    
+
     /**
      * The list view element in the scene.
      */
-    private ListView<String> list_view;
+    private ListView<String> protein_list_view;
+    /**
+     * The list view element in the scene.
+     */
+    private ListView<String> peptide_list_view;
     /**
      * The resource file with protein intensities.
      */
@@ -175,10 +181,10 @@ public class VolcanoController implements Initializable {
         cf = new CanvasFiller();
         listeners = new Listeners(cf);
         generateNodes();
-        listeners.listViewListener(list_view, graphPane);
+        listeners.proteinListViewListener(protein_list_view, graphPane, peptide_list_view);
         listeners.controlComboBoxListener(control_choice_box, sr, plot_button, anchor);
         listeners.checkComboBoxListener(check_choice_box, sr, plot_button, anchor);
-        listeners.windowResizeListener(anchor, graphPane, cf);
+        listeners.windowResizeListener(anchor, graphPane, cf, toggle_button);
         RScriptCreator scriptCreator = new RScriptCreator();
         try {
             rscript = scriptCreator.createTempRScript();
@@ -198,8 +204,10 @@ public class VolcanoController implements Initializable {
     private void generateNodes() {
         graphPane.setStyle("-fx-background-color: #FFFFFF;");
         NodeGenerator ng = new NodeGenerator();
-        list_view = ng.generateUpperRightListView();
-        search_field = ng.generateAutoCompleteField(list_view, cf, graphPane, dotCol);
+        protein_list_view = ng.generateListView();
+        peptide_list_view = ng.generateListView();
+        peptide_list_view.setPrefHeight(80.0);
+        search_field = ng.generateAutoCompleteField(protein_list_view, cf, graphPane, dotCol, peptide_list_view);
         textControl = ng.generateText(540.0, 285.0, "Control group:");
         control_choice_box = ng.generateComboBox(150.0, 540.0, 290.0);
         control_choice_box.setDisable(true);
@@ -210,8 +218,8 @@ public class VolcanoController implements Initializable {
         toggle_button.setText("Show");
         toggle_button.setTextFill(Color.GREEN);
         anchor.getChildren().removeAll(graphPane);
-        anchor.getChildren().addAll(list_view, search_field, control_choice_box, check_choice_box,
-                textControl, textCheck, graphPane, toggleText);
+        anchor.getChildren().addAll(protein_list_view, search_field, control_choice_box, check_choice_box,
+                textControl, textCheck, graphPane, toggleText, peptide_list_view);
         anchor.setStyle("-fx-background-color: #E6E6E6;");
     }
 
@@ -378,15 +386,17 @@ public class VolcanoController implements Initializable {
                 cf.createVolcanoPlot(graphPane, anchor, dotCol);
                 anchor.getChildren().remove(graphPane);
                 anchor.getChildren().add(graphPane);
-                ObservableList<String> data = FXCollections.observableArrayList(dotCol.getDatapoints().keySet());
+                HashMap<String, ArrayList<Datapoint>> protein_list = (HashMap<String, ArrayList<Datapoint>>) dotCol.getDatapoints().clone();
+                protein_list.remove("Unknown");
+                ObservableList<String> data = FXCollections.observableArrayList(protein_list.keySet());
                 FXCollections.sort(data);
-                list_view.setItems(data);
-                listeners.setDotCol(dotCol);
+                protein_list_view.setItems(data);
+                listeners.setDatapointCol(dotCol);
                 search_field.getEntries().addAll(data);
                 search_field.updateDotCollection(dotCol);
                 search_field.setDisable(false);
-                anchor.getChildren().removeAll(list_view, search_field);
-                anchor.getChildren().addAll(list_view, search_field);
+                anchor.getChildren().removeAll(protein_list_view, search_field);
+                anchor.getChildren().addAll(protein_list_view, search_field);
                 listeners.setIsPlotted(true);
                 toggle_button.setDisable(false);
             }
@@ -502,15 +512,15 @@ public class VolcanoController implements Initializable {
         AnchorPane.setRightAnchor(progress_indicator, 95.0);
         AnchorPane.setTopAnchor(search_field, 45.0);
         AnchorPane.setRightAnchor(search_field, 15.0);
-        AnchorPane.setTopAnchor(list_view, 90.0);
-        AnchorPane.setRightAnchor(list_view, 15.0);
-        AnchorPane.setTopAnchor(textControl, 270.0);
+        AnchorPane.setTopAnchor(protein_list_view, 90.0);
+        AnchorPane.setRightAnchor(protein_list_view, 15.0);
+        AnchorPane.setTopAnchor(textControl, 200.0);
         AnchorPane.setRightAnchor(textControl, 82.0);
-        AnchorPane.setTopAnchor(control_choice_box, 290.0);
+        AnchorPane.setTopAnchor(control_choice_box, 220.0);
         AnchorPane.setRightAnchor(control_choice_box, 15.0);
-        AnchorPane.setTopAnchor(textCheck, 320.0);
+        AnchorPane.setTopAnchor(textCheck, 250.0);
         AnchorPane.setRightAnchor(textCheck, 90.0);
-        AnchorPane.setTopAnchor(check_choice_box, 340.0);
+        AnchorPane.setTopAnchor(check_choice_box, 270.0);
         AnchorPane.setRightAnchor(check_choice_box, 15.0);
         AnchorPane.setTopAnchor(graphPane, 45.0);
         AnchorPane.setBottomAnchor(graphPane, 15.0);
@@ -519,10 +529,11 @@ public class VolcanoController implements Initializable {
         AnchorPane.setRightAnchor(menuBar, 0.0);
         AnchorPane.setLeftAnchor(menuBar, 0.0);
         AnchorPane.setRightAnchor(toggle_button, 90.0);
-        AnchorPane.setTopAnchor(toggle_button, 380.0);
+        AnchorPane.setTopAnchor(toggle_button, 310.0);
         AnchorPane.setRightAnchor(toggleText, 15.0);
-        AnchorPane.setTopAnchor(toggleText, 375.0);
-        
+        AnchorPane.setTopAnchor(toggleText, 305.0);
+        AnchorPane.setTopAnchor(peptide_list_view, 355.0);
+        AnchorPane.setRightAnchor(peptide_list_view, 15.0);
     }
 
     @FXML

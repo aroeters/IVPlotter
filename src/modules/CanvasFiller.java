@@ -7,18 +7,30 @@ package modules;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.util.Callback;
 import nodes.Datapoint;
 import nodes.DatapointCollection;
 
@@ -31,7 +43,11 @@ public class CanvasFiller {
     /**
      * All shapes in the plot.
      */
-    HashMap<String, Shape> shapes = new HashMap<>();
+    private HashMap<String, Shape> shapes = new HashMap<>();
+    /**
+     * All used colors stored of the current layout.
+     */
+    private HashMap<String, String> highlightColors;
     /**
      * Everything that has to be unHighlighted in the plot.
      */
@@ -139,7 +155,11 @@ public class CanvasFiller {
                 logFCScaled = (((canvasWidth * datapoint.getLogFC()) / difference)) + zeroPoint + (15.5 * (graphPane.getWidth() / graphPane.getPrefWidth()));
                 pvalScaled = (canvasHeight - ((datapoint.getPvalue() * canvasHeight) / maxPval)) + (13.5 * (graphPane.getHeight() / graphPane.getPrefHeight()));
                 shape.relocate(logFCScaled, pvalScaled);
-                shape.setFill(Color.DARKGREY);
+                if (datapoint.getProteinNames().get(0).equals("Unknown")) {
+                    shape.setFill(Color.DARKGREY);
+                } else {
+                    shape.setFill(Color.GREY);
+                }
                 // To retrieve the data later in a fast way, setting it as the id.
                 shape.setId("MPID : " + datapoint.getMPID() + "\nLogFC : " + datapoint.getLogFC() + "\np-value : " + datapoint.getPvalue() + "\nAA sequence : " + datapoint.getSequence() + "\nProtein: " + datapoint.getProteinNames());
                 shape.setOnMouseEntered(new EventHandler<Event>() {
@@ -151,10 +171,11 @@ public class CanvasFiller {
                         shape.setFill(Color.BLACK);
                     }
                 });
+                // Set the onMouseExited event with everything that has to be done.
                 shape.setOnMouseExited(new EventHandler<Event>() {
                     @Override
                     public void handle(Event event) {
-                        shape.setFill(Color.DARKGREY);
+                        shape.setFill(Color.GREY);
                     }
                 });
                 shapes.put(datapoint.getMPID(), shape);
@@ -222,7 +243,7 @@ public class CanvasFiller {
             // set all dots that were from the previous selection to unhighlighted points.
             for (String MPID : unHighlight) {
                 Shape shape = shapes.get(MPID);
-                shape.setFill(Color.DARKGREY);
+                shape.setFill(Color.GREY);
                 shape.setOnMouseEntered(new EventHandler<Event>() {
                     @Override
                     public void handle(Event event) {
@@ -234,7 +255,7 @@ public class CanvasFiller {
                     public void handle(Event event) {
                         Tooltip tooltip = new Tooltip(shape.getId());
                         tooltip.install(shape, tooltip);
-                        shape.setFill(Color.DARKGREY);
+                        shape.setFill(Color.GREY);
                     }
                 });
                 graphPane.getChildren().remove(shape);
@@ -242,7 +263,7 @@ public class CanvasFiller {
             }
             unHighlight.clear();
         }
-        final HashMap<String, String> highlightColors = new HashMap<>();
+        highlightColors = new HashMap<>();
         if (proteinName != null && datapointCol.getDatapoints().containsKey(proteinName)) {
             Integer r, g, b;
             String[] splitRGB;
@@ -257,7 +278,7 @@ public class CanvasFiller {
                 } else {
                     r = (int) Math.ceil(Math.random() * 255);
                     g = (int) Math.ceil(Math.random() * 255);
-                    b = (int) Math.ceil((Math.random() * 255) / 2);
+                    b = (int) Math.ceil((Math.random() * 255));
                     highlightColors.put(datapoint.getSequence(), (r + "." + g + "." + b));
                 }
                 shape.setFill(Color.rgb(r, g, b));
@@ -290,10 +311,62 @@ public class CanvasFiller {
             this.previousName = proteinName;
         }
     }
+
+    /**
+     * When the previous canvas is toggled between fullscreen and windowed
+     * everything has to be redrawn to scale. This process removes the highlight
+     * and therefore it has to be redrawn in the previous colors to keep the
+     * same layout.
+     *
+     * @param datapointCol all datapoints
+     * @param graphPane the pane to draw on
+     */
+    public final void handlePreviousHighlight(DatapointCollection datapointCol, Pane graphPane) {
+        if (this.previousName != null && datapointCol.getDatapoints().containsKey(this.previousName)) {
+            Integer r, g, b;
+            String[] splitRGB;
+            // highlight all dots from the given protein
+            for (Datapoint datapoint : datapointCol.getDatapoints().get(this.previousName)) {
+                Shape shape = shapes.get(datapoint.getMPID());
+                splitRGB = highlightColors.get(datapoint.getSequence()).split("\\.");
+                r = Integer.parseInt(splitRGB[0]);
+                g = Integer.parseInt(splitRGB[1]);
+                b = Integer.parseInt(splitRGB[2]);
+                shape.setFill(Color.rgb(r, g, b));
+                shape.setOnMouseEntered(new EventHandler<Event>() {
+                    @Override
+                    public void handle(Event event) {
+                        // install a tooltip in a mouse entered event
+                        Tooltip tooltip = new Tooltip(shape.getId());
+                        tooltip.install(shape, tooltip);
+                        shape.setFill(Color.DARKRED);
+                    }
+                });
+                shape.setOnMouseExited(new EventHandler<Event>() {
+                    String[] splitRGB;
+                    Integer r, g, b;
+
+                    @Override
+                    public void handle(Event event) {
+                        String[] splitRGB = highlightColors.get(datapoint.getSequence()).split("\\.");
+                        r = Integer.parseInt(splitRGB[0]);
+                        g = Integer.parseInt(splitRGB[1]);
+                        b = Integer.parseInt(splitRGB[2]);
+                        shape.setFill(Color.rgb(r, g, b));
+                    }
+                });
+                unHighlight.add(datapoint.getMPID());
+                graphPane.getChildren().remove(shape);
+                graphPane.getChildren().add(shape);
+            }
+        }
+    }
+
     /**
      * Toggles the unidentified to visible and invisible.
+     *
      * @param datapointCol The dotCollection to het the datapoints from.
-     * @param toggle_button 
+     * @param toggle_button true if the peptides should show.
      */
     public final void setVisible(DatapointCollection datapointCol, ToggleButton toggle_button) {
         if (!isVisible) {
@@ -308,6 +381,55 @@ public class CanvasFiller {
         for (Datapoint datapoint : datapointCol.getDatapoints().get("Unknown")) {
             shapes.get(datapoint.getMPID()).setVisible(isVisible);
         }
+    }
+    /**
+     * Handles the filling of the peptide list with the custom listView cells.
+     * @param peptide_list_view the listView to add the custom cells to
+     * @param datapointCol all datapoints in the canvas
+     * @param graphPane the pane to draw on
+     */
+    public final void fillPeptidesList(ListView<String> peptide_list_view, DatapointCollection datapointCol, Pane graphPane) {
+        peptide_list_view.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
+            @Override
+            public ListCell<String> call(ListView<String> p) {
+                ListCell<String> cell = new ListCell<String>() {
+                    @Override
+                    protected void updateItem(String t, boolean bln) {
+                        super.updateItem(t, bln);
+                        if (t != null) {
+                            String[] rgb = highlightColors.get(t).split("\\.");
+                            Integer r = Integer.parseInt(rgb[0]);
+                            Integer g = Integer.parseInt(rgb[1]);
+                            Integer b = Integer.parseInt(rgb[2]);
+                            ColorPicker colorPicker = new ColorPicker();
+                            colorPicker.setValue(Color.rgb(r, g, b));
+                            colorPicker.setLayoutY(10);
+
+                            colorPicker.setOnAction((ActionEvent a) -> {
+                                String secondRGB = (int) (colorPicker.getValue().getRed() * 255) + "." + (int) (colorPicker.getValue().getGreen() * 255) + "." + (int) (colorPicker.getValue().getBlue() * 255);
+                                highlightColors.put(peptide_list_view.getSelectionModel().getSelectedItem(), secondRGB);
+                                setTextFill(Color.rgb((int) (colorPicker.getValue().getRed() * 255), (int) (colorPicker.getValue().getGreen() * 255), (int) (colorPicker.getValue().getBlue() * 255)));
+                                handlePreviousHighlight(datapointCol, graphPane);
+                            });
+                            setOnMouseEntered(new EventHandler<MouseEvent>() {
+                                @Override
+                                public void handle(MouseEvent event) {
+                                    if (!getChildren().contains(colorPicker)) {
+                                        setText("\t" + t);
+                                        getChildren().add(colorPicker);
+                                    }
+                                    peptide_list_view.getSelectionModel().select(getIndex());
+                                }
+                            });
+                            setText(t);
+                            setTextFill(Color.rgb(r, g, b));
+                        }
+                    }
+                };
+                return cell;
+            }
+        });
+        peptide_list_view.setItems(FXCollections.observableArrayList(highlightColors.keySet()));
     }
 
     /**

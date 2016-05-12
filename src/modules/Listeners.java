@@ -14,6 +14,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import nodes.DatapointCollection;
@@ -31,7 +32,7 @@ public class Listeners {
     /**
      * The collection with all points in it.
      */
-    DatapointCollection dotCol;
+    DatapointCollection datapointCol;
     /**
      * The canvasfiller that handles the drawing.
      */
@@ -53,27 +54,28 @@ public class Listeners {
     /**
      * The listener for the listView.
      *
-     * @param lv the listview to listen to.
+     * @param protein_list_view the listview to listen to.
      * @param graphPane the pane to draw on.
+     * @param peptides_list_view the peptides list view to fill
      */
-    public void listViewListener(ListView<String> lv, Pane graphPane) {
-        lv.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+    public void proteinListViewListener(ListView<String> protein_list_view, Pane graphPane, ListView<String> peptides_list_view) {
+        protein_list_view.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if (newValue != null) {
-                    cf.handleHighlight(newValue, dotCol, graphPane);
+                    cf.handleHighlight(newValue, datapointCol, graphPane);
+                    cf.fillPeptidesList(peptides_list_view, datapointCol, graphPane);
                 }
             }
         });
     }
-
     /**
      * Sets or updates the DatapointCollection.
      *
-     * @param dotCol the collection with all points.
+     * @param datapointCol the collection with all points.
      */
-    public final void setDotCol(DatapointCollection dotCol) {
-        this.dotCol = dotCol;
+    public final void setDatapointCol(DatapointCollection datapointCol) {
+        this.datapointCol = datapointCol;
     }
 
     /**
@@ -127,7 +129,7 @@ public class Listeners {
         });
     }
 
-    public final void windowResizeListener(AnchorPane anchor, Pane graphPane, CanvasFiller cf) {
+    public final void windowResizeListener(AnchorPane anchor, Pane graphPane, CanvasFiller cf, ToggleButton toggle_button) {
         final ChangeListener<Number> listener = new ChangeListener<Number>() {
             final Timer timer = new Timer(); // Use a timer to execute a new command
             TimerTask task = null; //task to execute after the delay
@@ -144,8 +146,11 @@ public class Listeners {
                         Platform.runLater(new Runnable() {
                             public void run() {
                                 if (isPlotted) {
-                                    cf.createVolcanoPlot(graphPane, anchor, dotCol);
-                                    cf.handleHighlight(listViewChoice, dotCol, graphPane);
+                                    cf.createVolcanoPlot(graphPane, anchor, datapointCol);
+                                    cf.handlePreviousHighlight(datapointCol, graphPane);
+                                    // To reset the toggle_button to its preselected state                 
+                                    toggle_button.fire();
+                                    toggle_button.fire();
                                 }
                             }
                         });

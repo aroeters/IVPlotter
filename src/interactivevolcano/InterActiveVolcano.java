@@ -30,8 +30,7 @@ public class InterActiveVolcano extends Application {
                 .getResource("volcano.fxml"));
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setTitle("Interactive Volcano plot");
-        stage.sizeToScene();
+        stage.setTitle("IVPlotter");
         stage.show();
     }
 

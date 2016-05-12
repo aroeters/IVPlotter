@@ -46,24 +46,24 @@ public class AutoCompleteTextField extends TextField {
     /**
      * The dotCollection.
      */
-    private DatapointCollection dotCol;
+    private DatapointCollection datapointCol;
 
     /**
      * Construct a new autocomplete text field.
      *
-     * @param lv the list with all elements to autocomplete on.
+     * @param protein_list_view the list with all elements to autocomplete on.
      * @param cf the class that fills the canvas.
      * @param pane the pane to draw on.
      * @param dotCollection the collection with all dots.
      */
-    public AutoCompleteTextField(ListView<String> lv, CanvasFiller cf, Pane pane, DatapointCollection dotCollection) {
+    public AutoCompleteTextField(ListView<String> protein_list_view, CanvasFiller cf, Pane pane, DatapointCollection dotCollection, ListView<String> peptide_list_view) {
         super(); // calls the constructor from the TextField class.
-        list_view = lv;
+        list_view = protein_list_view;
         entries = new TreeSet<>();
         entriesPopup = new ContextMenu();
         this.cf = cf;
         graphPane = pane;
-        dotCol = dotCollection;
+        datapointCol = dotCollection;
         // add a listener to the text field and shows a popup with all elements.
         textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -82,9 +82,10 @@ public class AutoCompleteTextField extends TextField {
                         entriesPopup.hide();
                     }
                 }
-                if (dotCol != null) {
-                    if (dotCol.getDatapoints().containsKey(newValue)) {
-                        cf.handleHighlight(newValue, dotCol, graphPane);
+                if (datapointCol != null) {
+                    if (datapointCol.getDatapoints().containsKey(newValue)) {
+                        cf.handleHighlight(newValue, datapointCol, graphPane);
+                        cf.fillPeptidesList(peptide_list_view, datapointCol, graphPane);
                     }
                 }
             }
@@ -108,7 +109,7 @@ public class AutoCompleteTextField extends TextField {
     }
 
     public final void updateDotCollection(DatapointCollection dotCol) {
-        this.dotCol = dotCol;
+        this.datapointCol = dotCol;
     }
 
     /**
