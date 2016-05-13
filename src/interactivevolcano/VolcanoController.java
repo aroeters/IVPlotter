@@ -36,17 +36,19 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.transform.Affine;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 import modules.AutoCompleteTextField;
-import modules.CanvasFiller;
+import modules.VolcanoCanvasFiller;
 import modules.Listeners;
 import modules.NodeGenerator;
 import nodes.Datapoint;
@@ -154,7 +156,7 @@ public class VolcanoController implements Initializable {
     /**
      * The class that creates the graphs.
      */
-    CanvasFiller cf;
+    VolcanoCanvasFiller cf;
     /**
      * The text above the control group box.
      */
@@ -178,7 +180,7 @@ public class VolcanoController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         plot_button.setDisable(true);
         progress_indicator.setVisible(false);
-        cf = new CanvasFiller();
+        cf = new VolcanoCanvasFiller();
         listeners = new Listeners(cf);
         generateNodes();
         listeners.proteinListViewListener(protein_list_view, graphPane, peptide_list_view);
@@ -217,9 +219,23 @@ public class VolcanoController implements Initializable {
         check_choice_box.setDisable(true);
         toggle_button.setText("Show");
         toggle_button.setTextFill(Color.GREEN);
-        anchor.getChildren().removeAll(graphPane);
         anchor.getChildren().addAll(protein_list_view, search_field, control_choice_box, check_choice_box,
-                textControl, textCheck, graphPane, toggleText, peptide_list_view);
+                textControl, textCheck, toggleText, peptide_list_view);
+//        final Affine accumulatedScales = new Affine();
+//        graphPane.getTransforms().add(accumulatedScales);
+//
+//        graphPane.setOnScroll(new EventHandler<ScrollEvent>() {
+//            @Override
+//            public void handle(ScrollEvent event) {
+//                double scaleFactor = 1;
+//                if (event.getDeltaY() > 0) {
+//                    scaleFactor = event.getDeltaY() * 1.1;
+//                } else if (event.getDeltaY() < 0) {
+//                    scaleFactor = event.getDeltaY() / 1.1;
+//                }
+//                accumulatedScales.appendScale(scaleFactor, scaleFactor, event.getX(), event.getY());
+//            }
+//        });
         anchor.setStyle("-fx-background-color: #E6E6E6;");
     }
 
@@ -294,8 +310,6 @@ public class VolcanoController implements Initializable {
                 control_choice_box.setDisable(false);
                 group_option.setText("Sample group file:\t\t" + group_file.getName());
                 checkRunnable();
-                anchor.getChildren().removeAll(check_choice_box, control_choice_box);
-                anchor.getChildren().addAll(check_choice_box, control_choice_box);
             }
         }
     }
@@ -384,21 +398,20 @@ public class VolcanoController implements Initializable {
             public void handle(WorkerStateEvent workerStateEvent) {
                 dotCol = esc.getValue(); // get the return value of the service
                 cf.createVolcanoPlot(graphPane, anchor, dotCol);
-                anchor.getChildren().remove(graphPane);
-                anchor.getChildren().add(graphPane);
                 HashMap<String, ArrayList<Datapoint>> protein_list = (HashMap<String, ArrayList<Datapoint>>) dotCol.getDatapoints().clone();
                 protein_list.remove("Unknown");
                 ObservableList<String> data = FXCollections.observableArrayList(protein_list.keySet());
                 FXCollections.sort(data);
+                protein_list.clear(); // to save space
                 protein_list_view.setItems(data);
                 listeners.setDatapointCol(dotCol);
                 search_field.getEntries().addAll(data);
                 search_field.updateDotCollection(dotCol);
                 search_field.setDisable(false);
-                anchor.getChildren().removeAll(protein_list_view, search_field);
-                anchor.getChildren().addAll(protein_list_view, search_field);
                 listeners.setIsPlotted(true);
                 toggle_button.setDisable(false);
+                toggle_button.fire();
+                toggle_button.fire(); // to reset the state of the toggle button to its pre plotted state.
             }
         });
         // when the other thread failed to execute this fires.

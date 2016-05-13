@@ -39,7 +39,7 @@ public class NodeGenerator {
      * @return the autocomplete textfield
      */
     public final AutoCompleteTextField generateAutoCompleteField(ListView<String> protein_list_view,
-            CanvasFiller cf, Pane pane, DatapointCollection dotCol, ListView<String> peptide_list_view) {
+            VolcanoCanvasFiller cf, Pane pane, DatapointCollection dotCol, ListView<String> peptide_list_view) {
         AutoCompleteTextField search_field = new AutoCompleteTextField(protein_list_view, cf, pane, dotCol, peptide_list_view);
         search_field.setPrefHeight(30.0);
         search_field.setPrefWidth(150.0);

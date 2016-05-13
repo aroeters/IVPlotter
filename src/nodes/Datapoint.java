@@ -6,6 +6,7 @@
 package nodes;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -34,6 +35,10 @@ public class Datapoint {
      */
     private final String sequence;
     /**
+     * True if the peptide is not identified.
+     */
+    private final Boolean isIdentified;
+    /**
      * Constructor of the dot class
      * @param mpid the new id
      * @param logFC the new logfc
@@ -48,6 +53,7 @@ public class Datapoint {
         this.proteinNames = new ArrayList<>();
         this.proteinNames.addAll(proteinNames);
         this.sequence = sequence;
+        this.isIdentified = !this.sequence.equals("-");
     }
     /**
      * Getter of the logFC.
@@ -90,5 +96,12 @@ public class Datapoint {
      */
     public final String getMPID() {
         return mpid;
+    }
+    /**
+     * Returns the boolean of the peptide that specifies if the mpid has an identified peptide.
+     * @return True if the there is an AA sequence present
+     */
+    public final Boolean isIdentified() {
+        return isIdentified;
     }
 }

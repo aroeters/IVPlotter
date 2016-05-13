@@ -36,9 +36,9 @@ public class AutoCompleteTextField extends TextField {
      */
     private ListView<String> list_view;
     /**
-     * The CanvasFiller to draw everything on the canvas
+     * The VolcanoCanvasFiller to draw everything on the canvas
      */
-    private CanvasFiller cf;
+    private VolcanoCanvasFiller cf;
     /**
      * The pane to draw on.
      */
@@ -56,7 +56,7 @@ public class AutoCompleteTextField extends TextField {
      * @param pane the pane to draw on.
      * @param dotCollection the collection with all dots.
      */
-    public AutoCompleteTextField(ListView<String> protein_list_view, CanvasFiller cf, Pane pane, DatapointCollection dotCollection, ListView<String> peptide_list_view) {
+    public AutoCompleteTextField(ListView<String> protein_list_view, VolcanoCanvasFiller cf, Pane pane, DatapointCollection dotCollection, ListView<String> peptide_list_view) {
         super(); // calls the constructor from the TextField class.
         list_view = protein_list_view;
         entries = new TreeSet<>();

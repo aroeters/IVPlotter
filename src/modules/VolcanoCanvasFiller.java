@@ -38,7 +38,7 @@ import nodes.DatapointCollection;
  *
  * @author Arne
  */
-public class CanvasFiller {
+public class VolcanoCanvasFiller {
 
     /**
      * All shapes in the plot.
@@ -155,10 +155,11 @@ public class CanvasFiller {
                 logFCScaled = (((canvasWidth * datapoint.getLogFC()) / difference)) + zeroPoint + (15.5 * (graphPane.getWidth() / graphPane.getPrefWidth()));
                 pvalScaled = (canvasHeight - ((datapoint.getPvalue() * canvasHeight) / maxPval)) + (13.5 * (graphPane.getHeight() / graphPane.getPrefHeight()));
                 shape.relocate(logFCScaled, pvalScaled);
-                if (datapoint.getProteinNames().get(0).equals("Unknown")) {
+                if (datapoint.isIdentified()) {
                     shape.setFill(Color.DARKGREY);
                 } else {
-                    shape.setFill(Color.GREY);
+                    shape.setFill(Color.DARKGREY);
+                    shape.setOpacity(0.5);
                 }
                 // To retrieve the data later in a fast way, setting it as the id.
                 shape.setId("MPID : " + datapoint.getMPID() + "\nLogFC : " + datapoint.getLogFC() + "\np-value : " + datapoint.getPvalue() + "\nAA sequence : " + datapoint.getSequence() + "\nProtein: " + datapoint.getProteinNames());
@@ -175,7 +176,7 @@ public class CanvasFiller {
                 shape.setOnMouseExited(new EventHandler<Event>() {
                     @Override
                     public void handle(Event event) {
-                        shape.setFill(Color.GREY);
+                        shape.setFill(Color.DARKGREY);
                     }
                 });
                 shapes.put(datapoint.getMPID(), shape);
@@ -382,6 +383,7 @@ public class CanvasFiller {
             shapes.get(datapoint.getMPID()).setVisible(isVisible);
         }
     }
+    
     /**
      * Handles the filling of the peptide list with the custom listView cells.
      * @param peptide_list_view the listView to add the custom cells to

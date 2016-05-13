@@ -36,7 +36,7 @@ public class Listeners {
     /**
      * The canvasfiller that handles the drawing.
      */
-    CanvasFiller cf;
+    VolcanoCanvasFiller cf;
     /**
      * Boolean if the volcano plot is made.
      */
@@ -47,7 +47,7 @@ public class Listeners {
      *
      * @param cf the canvas filler.
      */
-    public Listeners(CanvasFiller cf) {
+    public Listeners(VolcanoCanvasFiller cf) {
         this.cf = cf;
     }
 
@@ -129,7 +129,7 @@ public class Listeners {
         });
     }
 
-    public final void windowResizeListener(AnchorPane anchor, Pane graphPane, CanvasFiller cf, ToggleButton toggle_button) {
+    public final void windowResizeListener(AnchorPane anchor, Pane graphPane, VolcanoCanvasFiller cf, ToggleButton toggle_button) {
         final ChangeListener<Number> listener = new ChangeListener<Number>() {
             final Timer timer = new Timer(); // Use a timer to execute a new command
             TimerTask task = null; //task to execute after the delay
