@@ -244,7 +244,7 @@ public class VolcanoCanvasFiller {
             // set all dots that were from the previous selection to unhighlighted points.
             for (String MPID : unHighlight) {
                 Shape shape = shapes.get(MPID);
-                shape.setFill(Color.GREY);
+                shape.setFill(Color.DARKGREY);
                 shape.setOnMouseEntered(new EventHandler<Event>() {
                     @Override
                     public void handle(Event event) {
@@ -256,7 +256,7 @@ public class VolcanoCanvasFiller {
                     public void handle(Event event) {
                         Tooltip tooltip = new Tooltip(shape.getId());
                         tooltip.install(shape, tooltip);
-                        shape.setFill(Color.GREY);
+                        shape.setFill(Color.DARKGREY);
                     }
                 });
                 graphPane.getChildren().remove(shape);
