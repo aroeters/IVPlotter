@@ -15,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
@@ -130,7 +131,8 @@ public class VolcanoCanvasFiller {
      * @param anchor the anchor pane where the pane is a child of.
      * @param datapointCol the collection with all points in it.
      */
-    public final void createVolcanoPlot(Pane graphPane, AnchorPane anchor, DatapointCollection datapointCol) {
+    public final void createVolcanoPlot(Pane graphPane, AnchorPane anchor, DatapointCollection datapointCol, double scrollWidth, double scrollHeight) {
+        graphPane.setPrefSize(scrollWidth, scrollHeight);
         createBasicPlotCanvas(graphPane);
         canvasHeight = graphPane.getHeight() - (graphPane.getHeight() / 12.5);
         circleSize = canvasHeight / 300;

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +26,11 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
@@ -34,12 +40,16 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
@@ -78,6 +88,10 @@ public class VolcanoController implements Initializable {
     private Button plot_button;
     @FXML
     private ProgressIndicator progress_indicator;
+    @FXML
+    private ScrollPane scrollPane;
+    @FXML
+    private StackPane stackPane;
     @FXML
     private Pane graphPane;
     @FXML
@@ -166,9 +180,25 @@ public class VolcanoController implements Initializable {
      */
     Text textCheck;
     /**
-     * ToggleText
+     * ToggleText.
      */
     Text toggleText;
+    /**
+     * the width of the graphPane.
+     */
+    double graphPaneWidth;
+    /**
+     * the height of the graphPane.
+     */
+    double graphPaneHeight;
+    /**
+     * Linked list with all previous X coordinates.
+     */
+    LinkedList<Double> Xcoordinates = new LinkedList<>();
+    /**
+     * Linked list with all previous Y coordinates.
+     */
+    LinkedList<Double> Ycoordinates = new LinkedList<>();
 
     /**
      * Initializes the controller class.
@@ -186,7 +216,7 @@ public class VolcanoController implements Initializable {
         listeners.proteinListViewListener(protein_list_view, graphPane, peptide_list_view);
         listeners.controlComboBoxListener(control_choice_box, sr, plot_button, anchor);
         listeners.checkComboBoxListener(check_choice_box, sr, plot_button, anchor);
-        listeners.windowResizeListener(anchor, graphPane, cf, toggle_button);
+        listeners.windowResizeListener(anchor, scrollPane, graphPane, cf, toggle_button);
         RScriptCreator scriptCreator = new RScriptCreator();
         try {
             rscript = scriptCreator.createTempRScript();
@@ -205,7 +235,9 @@ public class VolcanoController implements Initializable {
      */
     private void generateNodes() {
         graphPane.setStyle("-fx-background-color: #FFFFFF;");
+        graphPaneWidth = graphPane.getPrefWidth();
         NodeGenerator ng = new NodeGenerator();
+        graphPaneHeight = graphPane.getPrefHeight();
         protein_list_view = ng.generateListView();
         peptide_list_view = ng.generateListView();
         peptide_list_view.setPrefHeight(80.0);
@@ -219,24 +251,68 @@ public class VolcanoController implements Initializable {
         check_choice_box.setDisable(true);
         toggle_button.setText("Show");
         toggle_button.setTextFill(Color.GREEN);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
         anchor.getChildren().addAll(protein_list_view, search_field, control_choice_box, check_choice_box,
                 textControl, textCheck, toggleText, peptide_list_view);
-//        final Affine accumulatedScales = new Affine();
-//        graphPane.getTransforms().add(accumulatedScales);
-//
-//        graphPane.setOnScroll(new EventHandler<ScrollEvent>() {
-//            @Override
-//            public void handle(ScrollEvent event) {
-//                double scaleFactor = 1;
-//                if (event.getDeltaY() > 0) {
-//                    scaleFactor = event.getDeltaY() * 1.1;
-//                } else if (event.getDeltaY() < 0) {
-//                    scaleFactor = event.getDeltaY() / 1.1;
-//                }
-//                accumulatedScales.appendScale(scaleFactor, scaleFactor, event.getX(), event.getY());
-//            }
-//        });
+        stackPane.setOnScroll(new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                if (event.getDeltaY() > 0) {
+                    double x = event.getX();
+                    double y = event.getY();
+                    zoom(graphPane, x, y, 1.1);
+                    Xcoordinates.add(x);
+                    Ycoordinates.add(y);
+                    event.consume();
+                } else if (event.getDeltaY() < 0) {
+                    if (!Xcoordinates.isEmpty()) {
+                        zoom(graphPane, Xcoordinates.getLast(), Ycoordinates.getLast(), (1 / 1.1));
+                        Xcoordinates.removeLast();
+                        Ycoordinates.removeLast();
+                    } else {
+                        zoom(graphPane, 0, 0, (1 / 1.1));
+                    }
+                    event.consume();
+                }
+            }
+        });
+        // reset button for the plot
         anchor.setStyle("-fx-background-color: #E6E6E6;");
+    }
+
+    /**
+     * The zoom function for the pane
+     *
+     * @param node the node to zoom on
+     * @param centerX X coordinate of the center
+     * @param centerY Y coordinate of the center
+     * @param factor the factor to zoom with
+     */
+    private void zoom(Node node, double centerX, double centerY, double factor) {
+        node.setScaleX(node.getScaleX() * factor);
+        node.setScaleY(node.getScaleY() * factor);
+        final Point2D center = node.localToParent(centerX, centerY);
+        final Bounds bounds = node.getBoundsInParent();
+        final double boundWidth = bounds.getWidth();
+        final double boundHeight = bounds.getHeight();
+        final double scaledBoundWidth = boundWidth * (factor - 1);
+        final double scaledBoundHeight = boundHeight * (factor - 1);
+        final double xr = 2 * (boundWidth / 2 - (center.getX() - bounds.getMinX())) / boundWidth;
+        final double yr = 2 * (boundHeight / 2 - (center.getY() - bounds.getMinY())) / boundHeight;
+        if (factor > 1 || !Ycoordinates.isEmpty()) {
+            node.setTranslateX(node.getTranslateX() + xr * scaledBoundWidth / 2);
+            node.setTranslateY(node.getTranslateY() + yr * scaledBoundHeight / 2);
+            graphPaneWidth = graphPaneWidth * factor;
+            graphPaneHeight = graphPaneHeight * factor;
+        } else {
+            node.setScaleX(1);
+            node.setScaleY(1);
+            node.setTranslateX(0);
+            node.setTranslateY(0);
+        }
     }
 
     /**
@@ -397,7 +473,7 @@ public class VolcanoController implements Initializable {
             @Override
             public void handle(WorkerStateEvent workerStateEvent) {
                 dotCol = esc.getValue(); // get the return value of the service
-                cf.createVolcanoPlot(graphPane, anchor, dotCol);
+                cf.createVolcanoPlot(graphPane, anchor, dotCol, scrollPane.getWidth(), scrollPane.getHeight());
                 HashMap<String, ArrayList<Datapoint>> protein_list = (HashMap<String, ArrayList<Datapoint>>) dotCol.getDatapoints().clone();
                 protein_list.remove("Unknown");
                 ObservableList<String> data = FXCollections.observableArrayList(protein_list.keySet());
@@ -539,6 +615,14 @@ public class VolcanoController implements Initializable {
         AnchorPane.setBottomAnchor(graphPane, 15.0);
         AnchorPane.setLeftAnchor(graphPane, 15.0);
         AnchorPane.setRightAnchor(graphPane, 185.0);
+        AnchorPane.setTopAnchor(scrollPane, 45.0);
+        AnchorPane.setBottomAnchor(scrollPane, 15.0);
+        AnchorPane.setLeftAnchor(scrollPane, 15.0);
+        AnchorPane.setRightAnchor(scrollPane, 185.0);
+        AnchorPane.setTopAnchor(stackPane, 45.0);
+        AnchorPane.setBottomAnchor(stackPane, 15.0);
+        AnchorPane.setLeftAnchor(stackPane, 15.0);
+        AnchorPane.setRightAnchor(stackPane, 185.0);
         AnchorPane.setRightAnchor(menuBar, 0.0);
         AnchorPane.setLeftAnchor(menuBar, 0.0);
         AnchorPane.setRightAnchor(toggle_button, 90.0);

@@ -14,6 +14,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -129,7 +130,7 @@ public class Listeners {
         });
     }
 
-    public final void windowResizeListener(AnchorPane anchor, Pane graphPane, VolcanoCanvasFiller cf, ToggleButton toggle_button) {
+    public final void windowResizeListener(AnchorPane anchor, ScrollPane scrollPane, Pane graphPane, VolcanoCanvasFiller cf, ToggleButton toggle_button) {
         final ChangeListener<Number> listener = new ChangeListener<Number>() {
             final Timer timer = new Timer(); // Use a timer to execute a new command
             TimerTask task = null; //task to execute after the delay
@@ -146,7 +147,7 @@ public class Listeners {
                         Platform.runLater(new Runnable() {
                             public void run() {
                                 if (isPlotted) {
-                                    cf.createVolcanoPlot(graphPane, anchor, datapointCol);
+                                    cf.createVolcanoPlot(graphPane, anchor, datapointCol, scrollPane.getWidth(), scrollPane.getHeight());
                                     cf.handlePreviousHighlight(datapointCol, graphPane);
                                     // To reset the toggle_button to its preselected state                 
                                     toggle_button.fire();
@@ -158,6 +159,6 @@ public class Listeners {
                 }, delayTime);
             }
         };
-        graphPane.widthProperty().addListener(listener);
+        scrollPane.widthProperty().addListener(listener);
     }
 }

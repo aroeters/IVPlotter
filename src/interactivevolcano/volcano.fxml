@@ -11,8 +11,16 @@
 
 <AnchorPane fx:id="anchor" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="494.0" prefWidth="704.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="interactivevolcano.VolcanoController">
    <children>
-      <Pane fx:id="graphPane" layoutX="14.0" layoutY="40.0" prefHeight="440.0" prefWidth="500.0" />
-      <MenuBar fx:id="menuBar" prefHeight="25.0" prefWidth="704.0">
+      <ScrollPane fx:id="scrollPane" layoutX="25.0" layoutY="50.0" prefHeight="420.0" prefWidth="515.0">
+         <content>
+            <StackPane fx:id="stackPane" prefHeight="420.0" prefWidth="515.0">
+               <children>
+                  <Pane fx:id="graphPane" prefHeight="410.0" prefWidth="505.0" />
+               </children>
+            </StackPane>
+         </content>
+      </ScrollPane>
+      <MenuBar fx:id="menuBar" prefHeight="25.0" prefWidth="705.0">
         <menus>
           <Menu fx:id="file" mnemonicParsing="false" text="File">
             <items>
