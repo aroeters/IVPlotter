@@ -111,17 +111,13 @@ public class VolcanoCanvasFiller {
     private Boolean isVisible = true;
 
     /**
-     * Creates the basic plot canvas for any graph.
+     * clears the plot canvas.
      *
      * @param graphPane the Pane to add the shapes to
      */
-    public final void createBasicPlotCanvas(Pane graphPane) {
+    public final void clearCanvas(Pane graphPane) {
         graphPane.getChildren().clear();
-        double canvasWidthBasic = graphPane.getWidth(); // The width of the canvas
-        double canvasHeightBasic = graphPane.getHeight(); // The height of the canvas
         graphPane.setStyle("-fx-background-color: #FFFFFF;");
-        double marginY = 15.5 * (graphPane.getHeight() / graphPane.getPrefHeight());
-        double marginX = 15.5 * (graphPane.getWidth() / graphPane.getPrefWidth());
     }
 
     /**
@@ -130,14 +126,16 @@ public class VolcanoCanvasFiller {
      * @param graphPane the pane to draw on.
      * @param anchor the anchor pane where the pane is a child of.
      * @param datapointCol the collection with all points in it.
+     * @param scrollWidth the width of the scroll pane.
+     * @param scrollHeight the height of the scroll pane.
      */
     public final void createVolcanoPlot(Pane graphPane, AnchorPane anchor, DatapointCollection datapointCol, double scrollWidth, double scrollHeight) {
         graphPane.setPrefSize(scrollWidth, scrollHeight);
-        createBasicPlotCanvas(graphPane);
-        canvasHeight = graphPane.getHeight() - (graphPane.getHeight() / 12.5);
+        clearCanvas(graphPane);
+        canvasHeight = graphPane.getHeight() - (graphPane.getHeight() / 10.5);
+        canvasWidth = graphPane.getWidth() - (graphPane.getWidth() / 12.5);
         circleSize = canvasHeight / 300;
         rectSize = canvasHeight / 150;
-        canvasWidth = graphPane.getWidth() - (graphPane.getWidth() / 14.5);
         absoluteMinLogFC = getAbsoluteMinLogFC(datapointCol.getMinLogFC());
         maxPval = Math.ceil(datapointCol.getMaxPval());
         flooredMinLogFC = (int) Math.floor(datapointCol.getMinLogFC());

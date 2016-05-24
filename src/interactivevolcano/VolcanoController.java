@@ -199,6 +199,14 @@ public class VolcanoController implements Initializable {
      * Linked list with all previous Y coordinates.
      */
     LinkedList<Double> Ycoordinates = new LinkedList<>();
+    /**
+     * Text on the X-axis for scale of the logFC.
+     */
+    Text xAxisText;
+    /**
+     * Text on the Y-axis for scale of the logFC.
+     */
+    Text yAxisText;
 
     /**
      * Initializes the controller class.
@@ -216,7 +224,7 @@ public class VolcanoController implements Initializable {
         listeners.proteinListViewListener(protein_list_view, graphPane, peptide_list_view);
         listeners.controlComboBoxListener(control_choice_box, sr, plot_button, anchor);
         listeners.checkComboBoxListener(check_choice_box, sr, plot_button, anchor);
-        listeners.windowResizeListener(anchor, scrollPane, graphPane, cf, toggle_button);
+        listeners.windowResizeListener(anchor, scrollPane, graphPane, cf, toggle_button, xAxisText, yAxisText);
         RScriptCreator scriptCreator = new RScriptCreator();
         try {
             rscript = scriptCreator.createTempRScript();
@@ -251,12 +259,15 @@ public class VolcanoController implements Initializable {
         check_choice_box.setDisable(true);
         toggle_button.setText("Show");
         toggle_button.setTextFill(Color.GREEN);
+        xAxisText = new Text("Log2");
+        yAxisText = new Text("-Log10");
+        yAxisText.setRotate(270.0);
+        anchor.getChildren().addAll(protein_list_view, search_field, control_choice_box, check_choice_box,
+                textControl, textCheck, toggleText, peptide_list_view, xAxisText, yAxisText);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setFitToHeight(true);
         scrollPane.setFitToWidth(true);
-        anchor.getChildren().addAll(protein_list_view, search_field, control_choice_box, check_choice_box,
-                textControl, textCheck, toggleText, peptide_list_view);
         stackPane.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent event) {
@@ -631,6 +642,12 @@ public class VolcanoController implements Initializable {
         AnchorPane.setTopAnchor(toggleText, 305.0);
         AnchorPane.setTopAnchor(peptide_list_view, 355.0);
         AnchorPane.setRightAnchor(peptide_list_view, 15.0);
+        AnchorPane.setTopAnchor(yAxisText, ((scrollPane.getPrefHeight()/2.0)+45));
+        AnchorPane.setLeftAnchor(yAxisText, -12.0);
+        AnchorPane.setTopAnchor(xAxisText, (57.0+scrollPane.getPrefHeight()));
+        AnchorPane.setLeftAnchor(xAxisText, scrollPane.getPrefWidth()/2 + 10.0);
+        
+        
     }
 
     @FXML

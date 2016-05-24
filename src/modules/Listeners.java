@@ -18,6 +18,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import nodes.DatapointCollection;
 
 /**
@@ -70,6 +71,7 @@ public class Listeners {
             }
         });
     }
+
     /**
      * Sets or updates the DatapointCollection.
      *
@@ -130,7 +132,7 @@ public class Listeners {
         });
     }
 
-    public final void windowResizeListener(AnchorPane anchor, ScrollPane scrollPane, Pane graphPane, VolcanoCanvasFiller cf, ToggleButton toggle_button) {
+    public final void windowResizeListener(AnchorPane anchor, ScrollPane scrollPane, Pane graphPane, VolcanoCanvasFiller cf, ToggleButton toggle_button, Text xAxisText, Text yAxisText) {
         final ChangeListener<Number> listener = new ChangeListener<Number>() {
             final Timer timer = new Timer(); // Use a timer to execute a new command
             TimerTask task = null; //task to execute after the delay
@@ -138,6 +140,8 @@ public class Listeners {
 
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, final Number newValue) {
+
+                    AnchorPane.setLeftAnchor(xAxisText, (Double) newValue / 2 + 10.0);
                 if (task != null) {
                     task.cancel(); // cancel a task that had been running.
                 }
@@ -160,5 +164,13 @@ public class Listeners {
             }
         };
         scrollPane.widthProperty().addListener(listener);
+        scrollPane.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    AnchorPane.setTopAnchor(yAxisText, (((Double) newValue / 2.0) + 45.0));
+                    AnchorPane.setTopAnchor(xAxisText, (43.0 + (Double) newValue));
+            }
+            
+        });
     }
 }
