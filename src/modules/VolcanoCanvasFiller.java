@@ -11,26 +11,20 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.scene.Scene;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 import nodes.Datapoint;
 import nodes.DatapointCollection;
@@ -109,6 +103,14 @@ public class VolcanoCanvasFiller {
      * True if unidentified are present on the canvas.
      */
     private Boolean isVisible = true;
+    /**
+     * The height where the x-axis is zero.
+     */
+    double bottomOfGraph;
+    /**
+     * The maximum height in which the points can be drawn.
+     */
+    double topOfGraph;
 
     /**
      * clears the plot canvas.
@@ -132,8 +134,8 @@ public class VolcanoCanvasFiller {
     public final void createVolcanoPlot(Pane graphPane, AnchorPane anchor, DatapointCollection datapointCol, double scrollWidth, double scrollHeight) {
         graphPane.setPrefSize(scrollWidth, scrollHeight);
         clearCanvas(graphPane);
-        canvasHeight = graphPane.getHeight() - (graphPane.getHeight() / 10.5);
-        canvasWidth = graphPane.getWidth() - (graphPane.getWidth() / 12.5);
+        canvasHeight = graphPane.getHeight() * 0.91;
+        canvasWidth = graphPane.getWidth() * 0.92;
         circleSize = canvasHeight / 300;
         rectSize = canvasHeight / 150;
         absoluteMinLogFC = getAbsoluteMinLogFC(datapointCol.getMinLogFC());
@@ -149,11 +151,13 @@ public class VolcanoCanvasFiller {
                 Shape shape;
                 if (datapoint.getProteinNames().size() == 1) {
                     shape = new Circle(circleSize);
+                    logFCScaled = (((canvasWidth * datapoint.getLogFC()) / difference)) + zeroPoint + (15.5 * (graphPane.getWidth() / graphPane.getPrefWidth())) - circleSize;
+                    pvalScaled = topOfGraph + (canvasHeight - ((datapoint.getPvalue() * canvasHeight) / maxPval)) - circleSize;
                 } else {
                     shape = new Rectangle(rectSize, rectSize);
+                    logFCScaled = (((canvasWidth * datapoint.getLogFC()) / difference)) + zeroPoint + (15.5 * (graphPane.getWidth() / graphPane.getPrefWidth())) - rectSize;
+                    pvalScaled = topOfGraph + (canvasHeight - ((datapoint.getPvalue() * canvasHeight) / maxPval)) - rectSize;
                 }
-                logFCScaled = (((canvasWidth * datapoint.getLogFC()) / difference)) + zeroPoint + (15.5 * (graphPane.getWidth() / graphPane.getPrefWidth()));
-                pvalScaled = (canvasHeight - ((datapoint.getPvalue() * canvasHeight) / maxPval)) + (13.5 * (graphPane.getHeight() / graphPane.getPrefHeight()));
                 shape.relocate(logFCScaled, pvalScaled);
                 if (datapoint.isIdentified()) {
                     shape.setFill(Color.DARKGREY);
@@ -194,18 +198,16 @@ public class VolcanoCanvasFiller {
         double xAxisHeight = canvasHeight + (canvasHeight / 11);
         double canvasHeightPart = canvasHeight / maxPval;
         double canvasWidthPart = canvasWidth / difference;
-        double xAxisPlacement;
+        double xAxisPlacement = 0;
         double yAxisPlacement;
         Text text;
         Line line;
-        double start = 0;
-        double end = 0;
         for (Integer pval = 0; pval <= maxPval; pval++) {
             yAxisPlacement = (canvasHeightPart * (maxPval - pval));
             if (pval == maxPval) {
-                end = yAxisPlacement + (15.5 * (xAxisHeight / graphPane.getPrefHeight()));
+                topOfGraph = yAxisPlacement + (15.5 * (xAxisHeight / graphPane.getPrefHeight()));
             } else if (pval == 0) {
-                start = yAxisPlacement + (17.5 * (xAxisHeight / graphPane.getPrefHeight()));
+                bottomOfGraph = yAxisPlacement + (17.5 * (xAxisHeight / graphPane.getPrefHeight()));
             }
             text = new Text(0, (20 * (xAxisHeight / graphPane.getPrefHeight())) + yAxisPlacement, pval.toString());
             line = new Line(10, yAxisPlacement + (15.5 * (xAxisHeight / graphPane.getPrefHeight())), 15.5, yAxisPlacement + (15.5 * (xAxisHeight / graphPane.getPrefHeight())));
@@ -218,16 +220,16 @@ public class VolcanoCanvasFiller {
                 xAxisPlacement = canvasWidthPart * widthPart;
                 counter = flooredMinLogFC + widthPart;
                 if (counter < 0) {
-                    text = new Text(xAxisPlacement + 10.5, xAxisHeight, counter.toString());
+                    text = new Text(xAxisPlacement + 10.5, bottomOfGraph + 20.0, counter.toString());
                 } else {
-                    text = new Text(xAxisPlacement + 13.5, xAxisHeight, counter.toString());
+                    text = new Text(xAxisPlacement + 13.5, bottomOfGraph + 20.0, counter.toString());
                 }
-                line = new Line(xAxisPlacement + 17.5, canvasHeight + (25 * (xAxisHeight / graphPane.getPrefHeight())), xAxisPlacement + 17.5, canvasHeight + (20 * (xAxisHeight / graphPane.getPrefHeight())));
+                line = new Line(xAxisPlacement + 17.5, bottomOfGraph, xAxisPlacement + 17.5, bottomOfGraph + 5.0);
                 graphPane.getChildren().addAll(text, line);
             }
         }
-        Line yLine = new Line(15.5, start, 15.5, end);
-        Line xLine = new Line(15.5, start, graphPane.getWidth() - (15.5 * (graphPane.getWidth() / graphPane.getPrefWidth())), start);
+        Line yLine = new Line(15.5, bottomOfGraph, 15.5, topOfGraph);
+        Line xLine = new Line(15.5, bottomOfGraph, xAxisPlacement + 17.5, bottomOfGraph);
         graphPane.getChildren().addAll(yLine, xLine);
     }
 
@@ -383,9 +385,10 @@ public class VolcanoCanvasFiller {
             shapes.get(datapoint.getMPID()).setVisible(isVisible);
         }
     }
-    
+
     /**
      * Handles the filling of the peptide list with the custom listView cells.
+     *
      * @param peptide_list_view the listView to add the custom cells to
      * @param datapointCol all datapoints in the canvas
      * @param graphPane the pane to draw on

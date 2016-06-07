@@ -22,9 +22,9 @@ public class RScriptCreator {
      */
     private String dir = "";
     /**
-     * Creates the temporary R script
+     * Creates the temporary R script.
      * @return The string with the path to the script and scriptname in it.
-     * @throws IOException 
+     * @throws IOException
      */
     public final String createTempRScript() throws IOException {
         dir = System.getProperty("user.dir");
@@ -35,7 +35,7 @@ public class RScriptCreator {
         FileWriter bw = new FileWriter(rscript, true);
         String line;
         while ((line = br.readLine()) != null) {
-            bw.write(line+"\n");
+            bw.write(line + "\n");
         }
         bw.close();
         return rscript.getPath();
