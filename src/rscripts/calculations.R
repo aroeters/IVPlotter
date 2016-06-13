@@ -19,8 +19,8 @@ colMean <- apply(inputFiltered[2:ncol(inputFiltered)], 2, mean)
 totalMean <- mean(colMean)
 # Normalize the data
 inputFiltered[2:ncol(inputFiltered)-1] <- inputFiltered[2:ncol(inputFiltered)-1]/colMean*totalMean
-inputFiltered <- rbind(inputFiltered[1:18], c(groupInput$V1))
-inputFiltered <- data.frame(rbind(inputFiltered[1:18], c(groupInput$V2)))
+inputFiltered <- rbind(inputFiltered[1:ncol(inputFiltered)], c(groupInput$V1))
+inputFiltered <- data.frame(rbind(inputFiltered[1:ncol(inputFiltered)], c(groupInput$V2)))
 totalRows <- nrow(inputFiltered)
 # Get the means of the groups
 groupControl.mean <- apply(inputFiltered[1:rowsToUse, inputFiltered[totalRows,] == controlGroup], 1, mean)
