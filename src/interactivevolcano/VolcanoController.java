@@ -28,8 +28,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
@@ -43,16 +41,13 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.transform.Affine;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -68,40 +63,77 @@ import rscripts.RScriptRequirementChecker;
 import rscripts.RScriptCreator;
 
 /**
- * FXML Controller class
+ * The class that regulates all functionality of the application.
  *
  * @author Arne
  */
 public class VolcanoController implements Initializable {
-
     @FXML
     private MenuBar menuBar;
-    @FXML
-    private Menu file;
+    /**
+     * The main pane that holds all other elements.
+     */
     @FXML
     private AnchorPane anchor;
+    /**
+     * The intensity file selection option.
+     */
     @FXML
     private MenuItem intensity_option;
+    /**
+     * The group selection file option.
+     */
     @FXML
     private MenuItem group_option;
+    /**
+     * The button to make the volcano plot.
+     */
     @FXML
     private Button plot_button;
+    /**
+     * The progress indicator.
+     */
     @FXML
     private ProgressIndicator progress_indicator;
+    /**
+     * The pane that is the container of the stackpane and graphPane for the
+     * zoom functionality.
+     */
     @FXML
     private ScrollPane scrollPane;
+    /**
+     * The pane that hold the graphPane.
+     */
     @FXML
     private StackPane stackPane;
+    /**
+     * The pane to draw on.
+     */
     @FXML
     private Pane graphPane;
+    /**
+     * The peptide sequence file option.
+     */
     @FXML
     private MenuItem peptide_sequence_option;
+    /**
+     * the uniqueness file selection option.
+     */
     @FXML
     private MenuItem uniqueness_option;
+    /**
+     * The save image menu item.
+     */
     @FXML
     private MenuItem saveImage;
+    /**
+     * The hide and show toggle button.
+     */
     @FXML
     ToggleButton toggle_button;
+    /**
+     * The help menu item.
+     */
     @FXML
     private MenuItem help;
 
@@ -505,8 +537,7 @@ public class VolcanoController implements Initializable {
         esc.setOnFailed(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent workerStateEvent) {
-                Text contentNode = new Text(35, 30, "Please make sure that R is in\n"
-                        + "the classpath of your system");
+                Text contentNode = new Text(35, 30, "Please make sure that R is in the classpath\nof your system and you have selected all the correct files.");
                 contentNode.setFont(Font.font("Verdana", 12));
                 Stage stage = new Stage();
                 Pane paneTwo = new Pane(contentNode);
@@ -626,6 +657,7 @@ public class VolcanoController implements Initializable {
         AnchorPane.setBottomAnchor(graphPane, 15.0);
         AnchorPane.setLeftAnchor(graphPane, 15.0);
         AnchorPane.setRightAnchor(graphPane, 185.0);
+        graphPane.setPrefSize(graphPane.getWidth(), graphPane.getHeight());
         AnchorPane.setTopAnchor(scrollPane, 45.0);
         AnchorPane.setBottomAnchor(scrollPane, 15.0);
         AnchorPane.setLeftAnchor(scrollPane, 15.0);
@@ -646,8 +678,6 @@ public class VolcanoController implements Initializable {
         AnchorPane.setLeftAnchor(yAxisText, -12.0);
         AnchorPane.setTopAnchor(xAxisText, (57.0+scrollPane.getPrefHeight()));
         AnchorPane.setLeftAnchor(xAxisText, scrollPane.getPrefWidth()/2 + 10.0);
-        
-        
     }
 
     @FXML
