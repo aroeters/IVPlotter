@@ -16,11 +16,11 @@ public class Datapoint {
     /**
      * The LogFC of the dot.
      */
-    private final float mLogFC;
+    private final Double mLogFC;
     /**
      * The pvalue of the dot.
      */
-    private final float mPvalue;
+    private final Double mPvalue;
     /**
      * The ID of the dot.
      */
@@ -45,7 +45,7 @@ public class Datapoint {
      * @param sequence the sequence of the dot
      * @param proteinNames the new proteinName(s) the dot belongs to
      */
-    public Datapoint(String mpid, Float logFC, Float pvalue, String sequence, List<String> proteinNames) {
+    public Datapoint(String mpid, Double logFC, Double pvalue, String sequence, List<String> proteinNames) {
         this.mLogFC = logFC;
         this.mPvalue = pvalue;
         this.mpid = mpid;
@@ -58,7 +58,7 @@ public class Datapoint {
      * Getter of the logFC.
      * @return  the logfc
      */
-    public final float getLogFC() {
+    public final Double getLogFC() {
         return mLogFC;
     }
     /**
@@ -72,7 +72,7 @@ public class Datapoint {
      * Getter of the pvalue of the dot.
      * @return the pvalue
      */
-    public final float getPvalue() {
+    public final Double getPvalue() {
         return mPvalue;
     }
     /**

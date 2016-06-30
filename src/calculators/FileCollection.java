@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package rscripts;
+package calculators;
 
 import java.io.File;
 
@@ -11,31 +11,37 @@ import java.io.File;
  *
  * @author Arne
  */
-public class RScriptRequirementChecker {
+public class FileCollection {
     /**
      * The resource file that contains the protein intensities.
      */
-    private File resource_file = null;
+//    private File resource_file = null;
+    private File resource_file = new File("C:\\Users\\Asus\\Documents\\VolcanoData\\intensityFile.mpks");
     /**
      * The file that contains the groups.
      */
-    private File group_file = null;
+//    private File group_file = null;
+    private File group_file = new File("C:\\Users\\Asus\\Documents\\VolcanoData\\inputFilesCOPDControl.txt");
     /**
      * The group to use as a control group.
      */
-    private String control_group = null;
+    private String control_group = "0";
+//    private String control_group = null;
     /**
      * The group to check against.
      */
-    private String check_group = null;
+//    private String check_group = null;
+    private String check_group = "1";
     /**
      * The file that contains the peptide per MPID.
      */
-    private File peptide_file = null;
+//    private File peptide_file = null;
+    private File peptide_file = new File("C:\\Users\\Asus\\Documents\\VolcanoData\\peptide_sequence.txt");
     /**
      * The file that contains the uniqueness per protein/gene.
      */
-    private File uniqueness_file = null;
+//    private File uniqueness_file = null;
+    private File uniqueness_file = new File("C:\\Users\\Asus\\Documents\\VolcanoData\\peptideUniqueness.csv");
     /**
      * Setter of the resource file.
      * @param file a new file
@@ -47,7 +53,7 @@ public class RScriptRequirementChecker {
      * Getter of the resource file.
      * @return a File object that represents the file.
      */
-    public File getResource_file() {
+    public File getIntensity_file() {
         return resource_file;
     }
     /**
@@ -68,7 +74,7 @@ public class RScriptRequirementChecker {
      * Getter of the group to check with.
      * @return getter of the group
      */
-    public String getCheck_group() {
+    public String getTarget_group() {
         return check_group;
     }
     /**

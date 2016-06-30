@@ -58,8 +58,7 @@ import modules.NodeGenerator;
 import nodes.Datapoint;
 import nodes.DatapointCollection;
 import nonguitasks.ExternalScriptRunner;
-import rscripts.RScriptRequirementChecker;
-import rscripts.RScriptCreator;
+import calculators.FileCollection;
 
 /**
  * The class that regulates all functionality of the application.
@@ -172,12 +171,12 @@ public class VolcanoController implements Initializable {
     /**
      * The choice box for which group is the non control group.
      */
-    private ComboBox<String> check_choice_box;
+    private ComboBox<String> target_choice_box;
     /**
      * The checker that does the checks if all necessary elements are present to
      * create the interactive volcano plot.
      */
-    private final RScriptRequirementChecker sr = new RScriptRequirementChecker();
+    private final FileCollection sr = new FileCollection();
     /**
      * The location where the R script is temporarily stored.
      */
@@ -254,15 +253,15 @@ public class VolcanoController implements Initializable {
         generateNodes();
         listeners.proteinListViewListener(protein_list_view, graphPane, peptide_list_view);
         listeners.controlComboBoxListener(control_choice_box, sr, plot_button, anchor);
-        listeners.checkComboBoxListener(check_choice_box, sr, plot_button, anchor);
+        listeners.checkComboBoxListener(target_choice_box, sr, plot_button, anchor);
         listeners.windowResizeListener(anchor, scrollPane, graphPane, cf, toggle_button, xAxisText, yAxisText);
-        RScriptCreator scriptCreator = new RScriptCreator();
-        try {
-            rscript = scriptCreator.createTempRScript();
-            rscriptDir = scriptCreator.getDir();
-        } catch (IOException ex) {
-            Logger.getLogger(VolcanoController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        RScriptCreator scriptCreator = new RScriptCreator();
+//        try {
+//            rscript = scriptCreator.createTempRScript();
+//            rscriptDir = scriptCreator.getDir();
+//        } catch (IOException ex) {
+//            Logger.getLogger(VolcanoController.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         search_field.setDisable(true);
         toggle_button.setDisable(true);
         setAnchors();
@@ -285,15 +284,15 @@ public class VolcanoController implements Initializable {
         control_choice_box = ng.generateComboBox(150.0, 540.0, 290.0);
         control_choice_box.setDisable(true);
         textCheck = ng.generateText(540.0, 330.0, "Other group:");
-        check_choice_box = ng.generateComboBox(150.0, 540.0, 335.0);
+        target_choice_box = ng.generateComboBox(150.0, 540.0, 335.0);
         toggleText = ng.generateText(0, 0, "unidentified\npeptides");
-        check_choice_box.setDisable(true);
+        target_choice_box.setDisable(true);
         toggle_button.setText("Show");
         toggle_button.setTextFill(Color.GREEN);
         xAxisText = new Text("Log2");
         yAxisText = new Text("-Log10");
         yAxisText.setRotate(270.0);
-        anchor.getChildren().addAll(protein_list_view, search_field, control_choice_box, check_choice_box,
+        anchor.getChildren().addAll(protein_list_view, search_field, control_choice_box, target_choice_box,
                 textControl, textCheck, toggleText, peptide_list_view, xAxisText, yAxisText);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -422,8 +421,8 @@ public class VolcanoController implements Initializable {
                         fxcol.add(line.split("\\s")[1]);
                     }
                 }
-                check_choice_box.setItems(FXCollections.observableArrayList(fxcol));
-                check_choice_box.setDisable(false);
+                target_choice_box.setItems(FXCollections.observableArrayList(fxcol));
+                target_choice_box.setDisable(false);
                 control_choice_box.setItems(FXCollections.observableArrayList(fxcol));
                 control_choice_box.setDisable(false);
                 group_option.setText("Sample group file:\t\t" + group_file.getName());
@@ -499,14 +498,9 @@ public class VolcanoController implements Initializable {
      */
     @FXML
     private void makePlot(ActionEvent event) throws IOException, InterruptedException {
-        // The command to execute to run the R script
-        String command = "Rscript " + rscript + " " + sr.getResource_file()
-                + " " + sr.getGroup_file() + " " + sr.getControl_group()
-                + " " + sr.getCheck_group() + " " + rscriptDir;
         // Pass all elements that are used to another class that uses a different thread then the UI thread
         // to prevent freezing of the UI.
-        ExternalScriptRunner esc = new ExternalScriptRunner(command, rscriptDir + "/dataframe_"
-                + sr.getControl_group() + "_" + sr.getCheck_group() + ".csv", peptide_file, uniqueness_file);
+        ExternalScriptRunner esc = new ExternalScriptRunner(sr);
         // binds the progress of the external process to the progress indicator to keep it running
         // while the other thread is still executing the R script
         progress_indicator.visibleProperty().bind(esc.runningProperty());
@@ -650,8 +644,8 @@ public class VolcanoController implements Initializable {
         AnchorPane.setRightAnchor(control_choice_box, 15.0);
         AnchorPane.setTopAnchor(textCheck, 250.0);
         AnchorPane.setRightAnchor(textCheck, 90.0);
-        AnchorPane.setTopAnchor(check_choice_box, 270.0);
-        AnchorPane.setRightAnchor(check_choice_box, 15.0);
+        AnchorPane.setTopAnchor(target_choice_box, 270.0);
+        AnchorPane.setRightAnchor(target_choice_box, 15.0);
         AnchorPane.setTopAnchor(graphPane, 45.0);
         AnchorPane.setBottomAnchor(graphPane, 15.0);
         AnchorPane.setLeftAnchor(graphPane, 15.0);

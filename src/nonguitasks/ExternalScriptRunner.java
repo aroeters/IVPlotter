@@ -5,6 +5,8 @@
  */
 package nonguitasks;
 
+import calculators.Calculator;
+import calculators.FileCollection;
 import java.io.File;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -16,41 +18,24 @@ import nodes.DatapointCollection;
  */
 public class ExternalScriptRunner extends Service<DatapointCollection> {
     /**
-     * The command to run the rscript with.
-     */
-    private String command = "";
-    /**
      * The DatapointCollection to fill.
      */
     private DatapointCollection dotCol;
-    /**
-     * The filename as input.
-     */
-    private final String fileIn;
-    /**
-     * The file that contains all peptides in it.
-     */
-    private final File peptideFile;
-    /**
-     * Contains the file that has the uniqueness per peptide in it.
-     */
-    private final File uniquenessFile;
     /**
      * The parser that parses the uniqueness file.
      */
     private final PeptideUniquenessParser pup = new PeptideUniquenessParser();
     /**
-     * Constructor of the class.
-     * @param newCommand the command to run.
-     * @param fileIn the file to process.
-     * @param peptideFile the second file to process.
-     * @param uniqueness the uniqueness file to use.
+     * The FileCollection contains all files and other options that have been selected
+     * in the IVPlotter and have to be used for creation of all tests.
      */
-    public ExternalScriptRunner(final String newCommand, final String fileIn, final File peptideFile, final File uniqueness) {
-        this.command = newCommand;
-        this.fileIn = fileIn;
-        this.peptideFile = peptideFile;
-        this.uniquenessFile = uniqueness;
+    private final FileCollection files;
+    /**
+     * Constructor of the class.
+     * @param files the container that collects and contains all files and selection options
+     */
+    public ExternalScriptRunner(final FileCollection files) {
+        this.files = files;
     }
     /**
      * Creates a task that is sent to a different thread than the one of the UI.
@@ -61,12 +46,9 @@ public class ExternalScriptRunner extends Service<DatapointCollection> {
         return new Task<DatapointCollection>() {
             @Override
             protected DatapointCollection call() throws Exception { // overides the call method to be able to use it.
-                if (!new File(fileIn).isFile()) {
-                    Process process = Runtime.getRuntime().exec(command);
-                    process.waitFor();
-                }
-                pup.getPeptideUniqueness(peptideFile, uniquenessFile);
-                DataframeReader dfr = new DataframeReader(fileIn, pup.getMpidToProtein());
+                Calculator calc = new Calculator(files.getControl_group(), files.getTarget_group(), files.getGroup_file(), files.getIntensity_file());
+                pup.getPeptideUniqueness(files.getPeptide_file(), files.getUniqueness_file());
+                DataframeReader dfr = new DataframeReader(calc.getCalculationResults(), pup.getMpidToProtein());
                 dotCol = dfr.readDataFrame();
                 return dotCol;
             }

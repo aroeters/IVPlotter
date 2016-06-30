@@ -8,7 +8,7 @@ package modules;
 import java.util.Timer;
 import java.util.TimerTask;
 import javafx.application.Platform;
-import rscripts.RScriptRequirementChecker;
+import calculators.FileCollection;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
@@ -98,7 +98,7 @@ public class Listeners {
      * @param plotButton the button to active the externalscript runner with
      * @param anchor the anchorpane on which the button is attached
      */
-    public final void controlComboBoxListener(ComboBox<String> cb, RScriptRequirementChecker requiChecker, Button plotButton, AnchorPane anchor) {
+    public final void controlComboBoxListener(ComboBox<String> cb, FileCollection requiChecker, Button plotButton, AnchorPane anchor) {
         cb.valueProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue ov, String oldValue, String newValue) {
@@ -119,7 +119,7 @@ public class Listeners {
      * @param plotButton the button to active the externalscript runner with
      * @param anchor the anchorpane on which the button is attached
      */
-    public final void checkComboBoxListener(ComboBox<String> cb, RScriptRequirementChecker requiChecker, Button plotButton, AnchorPane anchor) {
+    public final void checkComboBoxListener(ComboBox<String> cb, FileCollection requiChecker, Button plotButton, AnchorPane anchor) {
         cb.valueProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue ov, String oldValue, String newValue) {

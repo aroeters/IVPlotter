@@ -22,19 +22,19 @@ public class DatapointCollection {
     /**
      * The minimal pvalue.
      */
-    private double minPval = Float.MAX_VALUE; // to always be below this
+    private double minPval = Double.MAX_VALUE; // to always be below this
     /**
      * The maximal pvalue.
      */
-    private double maxPval = Float.MIN_NORMAL; // to always be above this
+    private double maxPval = Double.MIN_VALUE; // to always be above this
     /**
      * The minimal logfc.
      */
-    private double minLogFC = Float.MAX_VALUE; // to always be below this
+    private double minLogFC = Double.MAX_VALUE; // to always be below this
     /**
      * The maximal logFC.
      */
-    private double maxLogFC = Float.MIN_NORMAL; // to always be above this
+    private double maxLogFC = Double.MIN_VALUE; // to always be above this
 
     /**
      * Adds a dot to the collection.
@@ -105,8 +105,10 @@ public class DatapointCollection {
      *
      * @param value the value to set as minimal
      */
-    public final void setMinPval(final Float value) {
-        minPval = value;
+    public final void setMinPval(final Double value) {
+        if (value < minPval) {
+            minPval = value;
+        }
     }
 
     /**
@@ -114,8 +116,10 @@ public class DatapointCollection {
      *
      * @param value the value to set as max
      */
-    public final void setMaxPval(final Float value) {
-        maxPval = value;
+    public final void setMaxPval(final Double value) {
+        if (value > maxPval) {
+            maxPval = value;
+        }
     }
 
     /**
@@ -123,8 +127,10 @@ public class DatapointCollection {
      *
      * @param value the value to set as minimal
      */
-    public final void setMinLogFC(final Float value) {
-        minLogFC = value;
+    public final void setMinLogFC(final Double value) {
+        if (value < minLogFC) {
+            minLogFC = value;
+        }
     }
 
     /**
@@ -132,7 +138,9 @@ public class DatapointCollection {
      *
      * @param value the value to set as minimal
      */
-    public final void setMaxLogFC(final Float value) {
-        maxLogFC = value;
+    public final void setMaxLogFC(final Double value) {
+        if (value > maxLogFC) {
+            maxLogFC = value;
+        }
     }
 }

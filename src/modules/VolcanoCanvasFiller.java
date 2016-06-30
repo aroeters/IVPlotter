@@ -143,6 +143,11 @@ public class VolcanoCanvasFiller {
         flooredMinLogFC = (int) Math.floor(datapointCol.getMinLogFC());
         ceiledMaxLogFC = (int) Math.ceil(datapointCol.getMaxLogFC());
         difference = calculateDifference(flooredMinLogFC, ceiledMaxLogFC);
+        // The difference should always be modulo 2 == 0 to draw the x axis line long enough
+        if (difference % 2 != 0) {
+            difference += 1;
+        }
+        System.out.println(difference);
         zeroPoint = (absoluteMinLogFC / difference) * canvasWidth;
         drawTicks(graphPane);
         HashMap<String, ArrayList<Datapoint>> datapointMap = datapointCol.getDatapoints();
