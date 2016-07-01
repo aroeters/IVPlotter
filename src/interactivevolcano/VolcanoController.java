@@ -57,7 +57,7 @@ import modules.Listeners;
 import modules.NodeGenerator;
 import nodes.Datapoint;
 import nodes.DatapointCollection;
-import nonguitasks.ThreadSeparater;
+import nonguitasks.ThreadSeparator;
 import calculators.FileCollection;
 
 /**
@@ -500,7 +500,7 @@ public class VolcanoController implements Initializable {
     private void makePlot(ActionEvent event) throws IOException, InterruptedException {
         // Pass all elements that are used to another class that uses a different thread then the UI thread
         // to prevent freezing of the UI.
-        ThreadSeparater esc = new ThreadSeparater(sr);
+        ThreadSeparator esc = new ThreadSeparator(sr);
         // binds the progress of the external process to the progress indicator to keep it running
         // while the other thread is still executing the R script
         progress_indicator.visibleProperty().bind(esc.runningProperty());

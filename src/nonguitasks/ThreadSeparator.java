@@ -16,7 +16,7 @@ import nodes.DatapointCollection;
  *
  * @author Arne
  */
-public class ThreadSeparater extends Service<DatapointCollection> {
+public class ThreadSeparator extends Service<DatapointCollection> {
     /**
      * The DatapointCollection to fill.
      */
@@ -34,7 +34,7 @@ public class ThreadSeparater extends Service<DatapointCollection> {
      * Constructor of the class.
      * @param files the container that collects and contains all files and selection options
      */
-    public ThreadSeparater(final FileCollection files) {
+    public ThreadSeparator(final FileCollection files) {
         this.files = files;
     }
     /**
