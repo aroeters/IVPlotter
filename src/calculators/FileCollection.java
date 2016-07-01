@@ -15,33 +15,27 @@ public class FileCollection {
     /**
      * The resource file that contains the protein intensities.
      */
-//    private File resource_file = null;
-    private File resource_file = new File("C:\\Users\\Asus\\Documents\\VolcanoData\\intensityFile.mpks");
+    private File resource_file = null;
     /**
      * The file that contains the groups.
      */
-//    private File group_file = null;
-    private File group_file = new File("C:\\Users\\Asus\\Documents\\VolcanoData\\inputFilesCOPDControl.txt");
+    private File group_file = null;
     /**
      * The group to use as a control group.
      */
-    private String control_group = "0";
-//    private String control_group = null;
+    private String control_group = null;
     /**
      * The group to check against.
      */
-//    private String check_group = null;
-    private String check_group = "1";
+    private String check_group = null;
     /**
      * The file that contains the peptide per MPID.
      */
-//    private File peptide_file = null;
-    private File peptide_file = new File("C:\\Users\\Asus\\Documents\\VolcanoData\\peptide_sequence.txt");
+    private File peptide_file = null;
     /**
      * The file that contains the uniqueness per protein/gene.
      */
-//    private File uniqueness_file = null;
-    private File uniqueness_file = new File("C:\\Users\\Asus\\Documents\\VolcanoData\\peptideUniqueness.csv");
+    private File uniqueness_file = null;
     /**
      * Setter of the resource file.
      * @param file a new file
